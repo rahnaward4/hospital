@@ -41,7 +41,7 @@ window.APP_DATA = {
     none: S("چیزی پیدا نشد", "هیڅ نه ولیدل شول", "Nothing found"),
     note: S("برای وقت‌گیری و معلومات بیشتر با ما تماس بگیرید.", "د وخت اخیستلو او نورو معلوماتو لپاره موږ سره اړیکه ونیسئ.", "Call us to book an appointment or for more information."),
     imgNote: S("تصویر تزئینی است و برای نمایش خدمات می‌باشد؛ عکس واقعی بخش نیست.", "دا انځور سینګاریز دی او یوازې د خدمتونو د ښودلو لپاره دی؛ د څانګې ریښتینی عکس نه دی.", "Decorative illustration to show the service; not a real photo of the department."),
-    developer: S("طراح و توسعه‌دهنده: لطیف امانی — متخصص بازاریابی شفاخانه رهنورد", "جوړونکی: لطیف امانی — د رهنورد روغتون د بازارموندنې متخصص", "Developer: Latif Amani — Marketing Specialist, Rahnaward Hospital")
+    developer: S("Developer: Latif Amani - Marketing Manager", "Developer: Latif Amani - Marketing Manager", "Developer: Latif Amani - Marketing Manager")
   },
 
   /* ---------- بخش‌ها ---------- */

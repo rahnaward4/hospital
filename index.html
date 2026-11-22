@@ -80,7 +80,7 @@ h2{font-size:23px;font-weight:800;margin:24px 2px 10px}
 .contact a{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);font-weight:700;font-size:18px;padding:13px 14px;border-radius:12px;background:var(--bg)}
 .contact .ph{direction:ltr;unicode-bidi:embed}
 .note{color:var(--muted);font-size:16px;margin:8px 2px 0}
-footer{text-align:center;color:var(--muted);font-size:14px;margin:28px 0 8px}
+footer{direction:ltr;text-align:center;color:var(--muted);font-size:14px;margin:28px 0 8px}
 
 /* ---- bottom action bar ---- */
 .bar{position:fixed;inset-inline:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);display:flex;gap:8px;
@@ -236,7 +236,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:28px 0 8px}
     $("hDx").textContent = t(U.diagnostics);
     $("hCon").textContent = t(U.contact);
     $("note").textContent = t(U.note);
-    $("foot").innerHTML = esc(t(H.name)) + "<br><b>" + esc(t(U.developer)) + "</b>";
+    $("foot").innerHTML = "<b>" + esc(t(U.developer)) + "</b>";
     $("bCall").textContent = "📞 " + t(U.call);
     $("bWa").innerHTML = icoWA("#fff") + "<span>" + esc(t(U.whatsapp)) + "</span>";
     $("bFb").innerHTML = icoFB("#fff") + "<span>" + esc(t(U.facebook)) + "</span>";
