@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070d4a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="رهنورد">
 <title>شفاخانه رهنورد</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -230,7 +236,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:28px 0 8px}
     $("hDx").textContent = t(U.diagnostics);
     $("hCon").textContent = t(U.contact);
     $("note").textContent = t(U.note);
-    $("foot").textContent = t(H.name);
+    $("foot").innerHTML = esc(t(H.name)) + "<br><b>" + esc(t(U.developer)) + "</b>";
     $("bCall").textContent = "📞 " + t(U.call);
     $("bWa").innerHTML = icoWA("#fff") + "<span>" + esc(t(U.whatsapp)) + "</span>";
     $("bFb").innerHTML = icoFB("#fff") + "<span>" + esc(t(U.facebook)) + "</span>";
@@ -336,6 +342,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin:28px 0 8px}
   });
 
   render();
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  }
 })();
 </script>
 </body>

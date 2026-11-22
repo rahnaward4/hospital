@@ -39,7 +39,9 @@ window.APP_DATA = {
     facebook: S("فیسبوک", "فیسبوک", "Facebook"),
     close: S("بستن", "تړل", "Close"),
     none: S("چیزی پیدا نشد", "هیڅ نه ولیدل شول", "Nothing found"),
-    note: S("برای وقت‌گیری و معلومات بیشتر با ما تماس بگیرید.", "د وخت اخیستلو او نورو معلوماتو لپاره موږ سره اړیکه ونیسئ.", "Call us to book an appointment or for more information.")
+    note: S("برای وقت‌گیری و معلومات بیشتر با ما تماس بگیرید.", "د وخت اخیستلو او نورو معلوماتو لپاره موږ سره اړیکه ونیسئ.", "Call us to book an appointment or for more information."),
+    imgNote: S("تصویر تزئینی است و برای نمایش خدمات می‌باشد؛ عکس واقعی بخش نیست.", "دا انځور سینګاریز دی او یوازې د خدمتونو د ښودلو لپاره دی؛ د څانګې ریښتینی عکس نه دی.", "Decorative illustration to show the service; not a real photo of the department."),
+    developer: S("طراح و توسعه‌دهنده: لطیف امانی — متخصص بازاریابی شفاخانه رهنورد", "جوړونکی: لطیف امانی — د رهنورد روغتون د بازارموندنې متخصص", "Developer: Latif Amani — Marketing Specialist, Rahnaward Hospital")
   },
 
   /* ---------- بخش‌ها ---------- */
@@ -49,7 +51,7 @@ window.APP_DATA = {
       name: S("بخش عاجل (اورژانس)", "بیړنی (عاجل) څانګه", "Emergency"),
       services: [
         S("پذیرش و کمک‌های اولیه ۲۴ ساعته", "۲۴ ساعته منل او لومړنۍ مرستې", "24-hour admission and first aid", "emergency-01.jpg"),
-        S("آمبولانس رایگان", "وړیا امبولانس", "Free ambulance", "ambulance.jpg", "emergency-02.jpg")
+        S("آمبولانس رایگان", "وړیا امبولانس", "Free ambulance", "emergency-02.jpg")
       ]
     },
     {
