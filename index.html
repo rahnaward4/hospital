@@ -98,6 +98,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin:28px 0 8px}
 .sheet ul{list-style:none;margin:0;padding:0}
 .sheet li{padding:9px 0 9px 0;border-bottom:1px solid var(--line);padding-inline-start:18px;position:relative;font-size:15px}
 .sheet li::before{content:"";position:absolute;inset-inline-start:0;top:18px;width:8px;height:8px;border-radius:50%;background:var(--orange)}
+
+.sheet li.hasimg{cursor:pointer}
+.sheet li .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet li .cam{flex:none;background:var(--orange-soft);border-radius:10px;padding:2px 8px;font-size:15px}
+.sheet li .fig{margin:10px 0 4px;border-radius:14px;overflow:hidden;background:var(--bg)}
+.sheet li .fig img{display:block;width:100%;height:auto}
+.sheet li .fig .miss{padding:14px;text-align:center;color:var(--muted);font-size:13px}
+.sheet .topimg{display:block;width:100%;max-height:210px;object-fit:cover;border-radius:14px;margin:4px 0 6px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;direction:ltr}
 .chips span{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px}
 .sheet .cta{display:block;margin-top:16px;text-align:center;text-decoration:none;background:var(--orange);color:#1a1200;font-weight:800;padding:13px;border-radius:14px}
@@ -274,16 +282,33 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin:28px 0 8px}
 
   function showDep(id){
     var d = D.departments.filter(function(x){ return x.id === id; })[0]; if (!d) return;
-    var html = head(d.icon, d.name) + '<h4>' + esc(t(U.services)) + '</h4><ul>' +
-      d.services.map(function(s){ return '<li>' + esc(t(s)) + '</li>'; }).join("") + '</ul>' + cta();
+    var top = d.img ? '<img class="topimg" loading="lazy" src="' + esc(d.img) + '" alt="" onerror="this.remove()">' : '';
+    var html = head(d.icon, d.name) + top + '<h4>' + esc(t(U.services)) + '</h4><ul>' +
+      d.services.map(function(s){
+        if (!s.img) return '<li><div class="row"><span>' + esc(t(s)) + '</span></div></li>';
+        return '<li class="hasimg" role="button" tabindex="0" data-img="' + esc(s.img) + '" data-alt="' + esc(t(s)) + '"><div class="row"><span>' + esc(t(s)) + '</span><span class="cam">📷</span></div><div class="fig" hidden></div></li>';
+      }).join("") + '</ul>' + cta();
     openSheet(html);
   }
   function showDx(id){
     var x = D.diagnostics.filter(function(y){ return y.id === id; })[0]; if (!x) return;
-    var html = head(x.icon, x.name) + x.groups.map(function(g){
+    var top = x.img ? '<img class="topimg" loading="lazy" src="' + esc(x.img) + '" alt="" onerror="this.remove()">' : '';
+    var html = head(x.icon, x.name) + top + x.groups.map(function(g){
       return '<h4>' + esc(t(g.title)) + '</h4><div class="chips">' + g.items.map(function(i){ return '<span>' + esc(i) + '</span>'; }).join("") + '</div>';
     }).join("") + cta();
     openSheet(html);
+  }
+
+  function toggleFig(li){
+    var fig = li.querySelector(".fig");
+    if (!fig.hidden) { fig.hidden = true; return; }
+    if (!fig.firstChild) {
+      var im = new Image();
+      im.loading = "lazy"; im.alt = li.dataset.alt || ""; im.src = li.dataset.img;
+      im.onerror = function(){ fig.innerHTML = '<div class="miss">📷 —</div>'; };
+      fig.appendChild(im);
+    }
+    fig.hidden = false;
   }
 
   /* ---- events ---- */
@@ -294,11 +319,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin:28px 0 8px}
   document.addEventListener("click", function(e){
     var dep = e.target.closest(".dep"); if (dep) return showDep(dep.dataset.id);
     var dx = e.target.closest(".dx"); if (dx) return showDx(dx.dataset.dx);
+    var li = e.target.closest("li.hasimg"); if (li) return toggleFig(li);
     if (e.target.id === "xx" || e.target.id === "ov") return closeSheet();
     var ext = e.target.closest("a[data-ext]");
     if (ext) { e.preventDefault(); openExternal(ext.href); }
   });
-  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeSheet(); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") closeSheet();
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("li.hasimg")) { e.preventDefault(); toggleFig(e.target); }
+  });
 
   render();
 })();
