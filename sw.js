@@ -1,7 +1,7 @@
 /* Service worker شفاخانه رهنورد — برای کار کردن بدون اینترنت
    اگر ساختار را تغییر دادید، شماره VERSION را بالا ببرید */
-const VERSION = "rw-v1";
-const CORE = ["./", "index.html", "data.js", "logo.png", "building.jpg", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const VERSION = "rw-v2";
+const CORE = ["./", "index.html", "data.js", "health-diseases.js", "health-diet.js", "health-sexual.js", "logo.png", "building.jpg", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
