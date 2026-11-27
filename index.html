@@ -57,6 +57,8 @@ h2{font-size:23px;font-weight:800;margin:24px 2px 10px}
 .tile.t4{background:linear-gradient(135deg,#0b6f8a,#1aa3c4)}
 .tile.t5{background:linear-gradient(135deg,#b3261e,#e8514a)}
 .tile.t6{background:linear-gradient(135deg,#b86300,#f08a0c)}
+/* Hospital Profile tile (full width) */
+.tile.t7{background:linear-gradient(135deg,#4a2a8a,#8e4fc9);grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;min-height:84px}
 
 .search{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:14px 16px;font:inherit;font-size:18px;color:var(--ink)}
 .search:focus{border-color:var(--navy);outline:none}
@@ -153,7 +155,25 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
 .shareq{font-size:18px;font-weight:600;margin:6px 0 8px}
 .danger li{background:var(--red-soft);border:1.5px solid #f3b9b9;color:#7a1414}
 
-@media (prefers-reduced-motion:reduce){.sheet{animation:none}html{scroll-behavior:auto}}
+/* ---- Hospital Profile: text + audio player ---- */
+.hp-text{white-space:pre-line;font-size:18px;line-height:1.9;background:#fff;border:1.5px solid #dfe3f0;border-radius:14px;padding:14px;margin:0 0 12px}
+.hp-gap{margin-top:12px}
+.ap{background:var(--navy);color:#fff;border-radius:16px;padding:12px;margin:4px 0 14px}
+.ap-row{display:flex;gap:8px}
+.ap-btn{flex:1;min-height:52px;border:0;border-radius:13px;font-weight:800;font-size:19px;padding:10px 14px;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation}
+.ap-btn[hidden]{display:none}
+.ap-play{background:var(--orange);color:#1a1200}
+.ap-stop{background:#fff;color:var(--navy)}
+.ap-status{min-height:26px;margin-top:8px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.ap.error .ap-status{color:#ffc2c2}
+.eq{display:none;gap:3px;align-items:flex-end;height:18px}
+.ap.playing .eq{display:inline-flex}
+.eq i{display:block;width:4px;height:6px;background:var(--orange);border-radius:2px;animation:eq .9s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:.15s}
+.eq i:nth-child(3){animation-delay:.3s}
+@keyframes eq{0%,100%{height:5px}50%{height:18px}}
+
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}html{scroll-behavior:auto}.eq i{animation:none;height:12px}}
 </style>
 </head>
 <body>
@@ -203,10 +223,12 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
 <script src="health-diet.js"></script>
 <script src="health-diet-i18n.js"></script>
 <script src="health-sexual.js"></script>
+<script src="hospital-profile.js"></script>
 <script>
 (function(){
   var D = window.APP_DATA, H = D.hospital, U = D.ui;
   var DIS = window.DISEASES || [], DIET = window.DIETS || [], SEX = window.SEXUAL || [];
+  var HP = window.HOSPITAL_PROFILE;
   var tg = window.Telegram && Telegram.WebApp;
   var lang = "fa";
   var FB_PATH = "M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z";
@@ -235,8 +257,10 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
   }
 
   /* ---------- home ---------- */
-  function setLang(l){ lang = l; try { localStorage.setItem("rw_lang", l); } catch(e){} render(); }
+  function setLang(l){ Player.stop(); lang = l; try { localStorage.setItem("rw_lang", l); } catch(e){} render(); }
   var TILES = [["t1","📚","tDiseases","diseases"],["t2","🥗","tDiet","diet"],["t3","💗","tSexual","sexual"],["t4","🔬","tLab","lab"],["t5","🚨","tDanger","danger"],["t6","📤","tShare","share"]];
+  /* Hospital Profile tile (uses the title from hospital-profile.js; no change to data.js) */
+  if (HP && HP.sections && HP.sections.length) { U.tHospitalProfile = HP.title; TILES.push(["t7","🏥","tHospitalProfile","hp"]); }
 
   function render(){
     document.documentElement.lang = lang;
@@ -285,10 +309,53 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
     $("none").hidden = list.length > 0; $("none").textContent = t(U.none);
   }
 
+  /* ---------- audio player (one recording at a time) ---------- */
+  var Player = (function(){
+    var audio = null, state = "idle";
+    var L = (HP && HP.labels) || {};
+    function ui(){
+      var box = document.querySelector("#sheet .ap"); if (!box) return;
+      var p = box.querySelector(".ap-play"), s = box.querySelector(".ap-stop"), m = box.querySelector(".ap-msg");
+      var busy = (state === "playing" || state === "loading");
+      box.className = "ap " + state;
+      p.hidden = busy; s.hidden = !busy;
+      m.textContent = state === "playing" ? t(L.playing) : state === "loading" ? t(L.loading) : state === "error" ? t(L.error) : "";
+    }
+    function release(){
+      if (audio) {
+        var a = audio; audio = null;                 /* ignore any late events from this element */
+        try { a.pause(); a.removeAttribute("src"); a.load(); } catch(e){}
+      }
+    }
+    function stop(){ release(); state = "idle"; ui(); }
+    function fail(){ release(); state = "error"; ui(); }
+    function play(n){
+      var s = HP && HP.sections[n]; if (!s || !s.audio) return fail();
+      release();                                      /* never two recordings at once */
+      try {
+        var a = new Audio();
+        audio = a; state = "loading"; ui();
+        a.preload = "auto";
+        a.addEventListener("playing", function(){ if (audio === a) { state = "playing"; ui(); } });
+        a.addEventListener("ended",   function(){ if (audio === a) stop(); });
+        a.addEventListener("error",   function(){ if (audio === a) fail(); });
+        a.src = s.audio;
+        var pr = a.play();
+        if (pr && pr.catch) pr.catch(function(){ if (audio === a) fail(); });
+      } catch(e){ fail(); }
+    }
+    return { play: play, stop: stop };
+  })();
+
+  /* stop audio when the app is hidden, minimized or closed */
+  document.addEventListener("visibilitychange", function(){ if (document.hidden) Player.stop(); });
+  window.addEventListener("pagehide", function(){ Player.stop(); });
+
   /* ---------- sheet navigation ---------- */
   var stack = [];
   function backArrow(){ return lang === "en" ? "←" : "→"; }
   function draw(){
+    Player.stop();                                    /* leaving/opening any view stops the audio */
     var v = stack[stack.length-1];
     var back = stack.length > 1 ? '<button class="x" data-act="back" aria-label="' + esc(t(U.back)) + '">' + backArrow() + '</button>' : '';
     $("sheet").innerHTML = '<div class="hd">' + back + '<span class="ic">' + v.icon + '</span><h3>' + esc(v.title) + '</h3><button class="x" data-act="close" aria-label="' + esc(t(U.close)) + '">✕</button></div>' + v.body();
@@ -299,13 +366,14 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
     if (tg && tg.BackButton) { try { tg.BackButton.show(); tg.BackButton.offClick(pop); tg.BackButton.onClick(pop); } catch(e){} }
   }
   function pop(){
+    Player.stop();
     stack.pop();
     if (!stack.length) {
       $("ov").classList.remove("on");
       if (tg && tg.BackButton) { try { tg.BackButton.hide(); tg.BackButton.offClick(pop); } catch(e){} }
     } else draw();
   }
-  function closeAll(){ stack = []; $("ov").classList.remove("on"); if (tg && tg.BackButton) { try { tg.BackButton.hide(); tg.BackButton.offClick(pop); } catch(e){} } }
+  function closeAll(){ Player.stop(); stack = []; $("ov").classList.remove("on"); if (tg && tg.BackButton) { try { tg.BackButton.hide(); tg.BackButton.offClick(pop); } catch(e){} } }
 
   function cta(){ return '<a class="cta" href="tel:' + H.phone + '">📞 ' + esc(t(U.call)) + ' · <span style="direction:ltr;unicode-bidi:embed">' + esc(H.phoneShow) + '</span></a>'; }
   function notes(){ return '<div class="hnote">⚕️ ' + esc(t(U.healthNote)) + '</div>' + (lang !== "fa" ? '<div class="dnote">ℹ️ ' + esc(t(U.dariOnly)) + '</div>' : ""); }
@@ -436,6 +504,59 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
   }
   function shareWA(){ openExternal("https://wa.me/?text=" + encodeURIComponent(t(U.shareText) + "\n" + H.shareLink)); }
 
+  /* ---------- Hospital Profile ---------- */
+  function rowBtn(act, id, icon, label){
+    return '<button class="row" data-act="' + act + '" data-i="' + esc(id) + '"><span class="em">' + icon + '</span><span class="tx">' + esc(label) + '</span><span class="chev">‹</span></button>';
+  }
+  function dxLink(id){
+    var x = D.diagnostics.filter(function(y){ return y.id === id; })[0]; if (!x) return "";
+    return '<div class="rows hp-gap">' + rowBtn("dx", id, x.icon, t(HP.labels.fullList) + " — " + t(x.name)) + '</div>';
+  }
+  /* extra facts that come ONLY from data.js (nothing invented) */
+  function hpFacts(s){
+    var id = s.id;
+    if (id === "contact") {
+      var rows = [];
+      var addr = t(H.address); if (addr) rows.push('<a href="#" onclick="return false">📍 ' + esc(addr) + '</a>');
+      rows.push('<a href="tel:' + H.phone + '">📞 <span class="ph">' + esc(H.phoneShow) + '</span></a>');
+      rows.push('<a href="https://wa.me/' + H.whatsapp + '" data-ext>' + icoWA("#25D366") + esc(t(U.whatsapp)) + '</a>');
+      rows.push('<a href="' + esc(H.facebook) + '" data-ext>' + icoFB("#1877F2") + esc(t(U.facebook)) + '</a>');
+      return '<div class="contact">' + rows.join("") + '</div>';
+    }
+    if (id === "departments") {
+      return '<div class="rows hp-gap">' + D.departments.map(function(d){ return rowBtn("dep", d.id, d.icon, t(d.name)); }).join("") + '</div>';
+    }
+    if (id === "emergency") {
+      var e = D.departments.filter(function(x){ return x.id === "emergency"; })[0];
+      var out = e ? '<ul class="svcs">' + e.services.map(function(sv){ return li("✅", t(sv)); }).join("") + '</ul>' : "";
+      return out + '<div class="rows hp-gap">' + rowBtn("danger", "x", "🚨", t(U.tDanger)) + '</div>';
+    }
+    if (s.link) return dxLink(s.link);
+    return "";
+  }
+  function hpListView(){
+    return { icon: "🏥", title: t(HP.title), body: function(){
+      return '<div class="rows">' + HP.sections.map(function(s, i){
+        return '<button class="row" data-act="hps" data-i="' + i + '"><span class="em">' + s.icon + '</span><span class="tx">' + (i + 1) + ". " + esc(t(s.title)) + '</span><span class="chev">‹</span></button>';
+      }).join("") + '</div>';
+    }};
+  }
+  function hpSectionView(i){
+    var s = HP.sections[i]; if (!s) return;
+    return { icon: s.icon, title: t(s.title), body: function(){
+      var L = HP.labels, txt = t(s.text);
+      var audioBox = '<div class="ap idle" role="group" aria-label="' + esc(t(L.play)) + '">' +
+        '<div class="ap-row">' +
+          '<button class="ap-btn ap-play" data-act="aplay" data-i="' + i + '">▶ ' + esc(t(L.play)) + '</button>' +
+          '<button class="ap-btn ap-stop" data-act="astop" data-i="' + i + '" hidden>■ ' + esc(t(L.stop)) + '</button>' +
+        '</div>' +
+        '<div class="ap-status" role="status" aria-live="polite"><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="ap-msg"></span></div>' +
+      '</div>';
+      var text = txt ? '<div class="hp-text">' + esc(txt) + '</div>' : "";
+      return (HP.audioEnabled ? audioBox : "") + text + hpFacts(s) + (s.id === "contact" ? "" : cta());
+    }};
+  }
+
   /* ---------- events ---------- */
   document.querySelector(".langs").addEventListener("click", function(e){ var b = e.target.closest("button"); if (b) setLang(b.dataset.l); });
   $("q").addEventListener("input", renderDeps);
@@ -448,12 +569,16 @@ details.grp summary .n{background:rgba(255,255,255,.2);border-radius:999px;paddi
       if (a === "back") return pop();
       if (a === "share-tg") return shareTG();
       if (a === "share-wa") return shareWA();
+      if (a === "aplay") return Player.play(+i);
+      if (a === "astop") return Player.stop();
       if (a === "diseases") v = disListView();
       else if (a === "diet") v = el.dataset.i === undefined ? dietListView() : dietView(+i);
       else if (a === "sexual") v = sexListView();
       else if (a === "share") v = shareView();
       else if (a === "lab") v = labListView();
       else if (a === "danger") v = dangerView();
+      else if (a === "hp") v = hpListView();
+      else if (a === "hps") v = hpSectionView(+i);
       else if (a === "dep") v = depView(i);
       else if (a === "dx") v = dxView(i);
       else if (a === "dis") v = disView(+i);
