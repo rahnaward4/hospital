@@ -1,7 +1,7 @@
 /* Service worker شفاخانه رهنورد — برای کار کردن بدون اینترنت
    اگر ساختار را تغییر دادید، شماره VERSION را بالا ببرید */
 const VERSION = "rw-v4";
-const CORE = ["./", "index.html", "data.js", "health-diseases.js", "health-diet.js", "health-diet-i18n.js", "health-sexual.js", "hospital-profile.js", "logo.png", "building.jpg", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const CORE = ["./", "index.html", "data.js", "health-diseases.js", "health-diet.js", "health-diet-i18n.js", "health-sexual.js", "logo.png", "building.jpg", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -18,10 +18,8 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== location.origin) return; // فونت و تلگرام: بدون تغییر
-
-  // فایل‌های صوتی: مستقیم از شبکه (موبایل/Safari درخواست Range می‌فرستد؛ کش آن را خراب می‌کند)
-  if (/\.(mp3|m4a|aac|ogg|wav)$/i.test(url.pathname) || req.headers.has("range")) return;
+  if (url.origin !== location.origin) return;
+  if (/\.(mp3|m4a|ogg|wav|aac)$/i.test(url.pathname)) return; // صدا را کش نکن (ریج درخواست‌ها) // فونت و تلگرام: بدون تغییر
 
   const isCode = req.mode === "navigate" || /\.(html|js|webmanifest)$/.test(url.pathname) || url.pathname.endsWith("/");
   if (isCode) {

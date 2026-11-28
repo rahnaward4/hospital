@@ -8,7 +8,15 @@
 
 const S = (fa, ps, en) => ({ fa, ps, en });
 
+/* نام فایل‌های صدا: section-01.mp3 … section-10.mp3
+   اگر برای هر زبان فایل جدا ضبط کردید، در بخش profile همان بخش بنویسید:
+   audio: { fa: "section-01-dari.mp3", ps: "section-01-pashto.mp3", en: "section-01-english.mp3" } */
+const AUD = (n) => { const f = "section-" + String(n).padStart(2, "0") + ".mp3"; return { fa: f, ps: f, en: f }; };
+
 window.APP_DATA = {
+
+  /* پوشه فایل‌های صدا (داخل همین ریپازیتوری). اگر فایل‌ها را بدون پوشه آپلود کردید، بنویسید: audioDir: "" */
+  audioDir: "audio/",
 
   hospital: {
     name: S("شفاخانه بین المللی رهنورد", "د رهنورد نړیوال روغتون", "Rahnaward International Hospital"),
@@ -44,6 +52,18 @@ window.APP_DATA = {
     telegram: S("تلگرام", "تلیګرام", "Telegram"),
     shareHow: S("اپ شفاخانه را از کدام طریق برای دوستان می‌فرستید؟", "د روغتون اپ ملګرو ته په کوم ډول لېږئ؟", "How do you want to send the hospital app to your friends?"),
     dietPrefix: S("پرهیز ", "پرهېز: ", "Diet: "),
+    dietAvoid: S("غذاهای ممنوع", "منع شوي خواړه", "Foods to avoid"),
+    dietLimit: S("غذاهای قابل مصرف به‌اندازه (در صورت ضرورت)", "په اندازه د مصرف وړ خواړه (په اړتیا)", "Foods in moderation (when necessary)"),
+    dietEat: S("غذاهای توصیه‌شده", "سپارل شوي خواړه", "Recommended foods"),
+    tProfile: S("پروفایل شفاخانه", "د روغتون پروفایل", "Hospital Profile"),
+    play: S("پخش صدا", "غږ واورئ", "Play"),
+    stop: S("توقف", "ودروئ", "Stop"),
+    playing: S("در حال پخش…", "په غږېدو کې…", "Playing…"),
+    audioError: S("فایل صدا هنوز اضافه نشده یا در این دستگاه پخش نمی‌شود.", "غږیز فایل لا نه دی ایښودل شوی یا په دې وسیله نه غږېږي.", "The audio file has not been added yet or cannot be played on this device."),
+    listenHint: S("برای شنیدن این بخش دکمه پخش را بزنید.", "د دې برخې اورېدو لپاره د غږولو تڼۍ ووهئ.", "Press Play to listen to this section."),
+    callNow: S("زنگ بزنید", "زنګ ووهئ", "Call now"),
+    address: S("آدرس", "پته", "Address"),
+    phoneLbl: S("تلفون", "تلیفون", "Phone"),
     tShare: S("دعوت دوستان", "ملګرو ته ولېږئ", "Share with friends"),
     shareText: S("اپ رسمی شفاخانه بین المللی رهنورد: خدمات، رهنمای صحی و پرهیز غذایی", "د رهنورد نړیوال روغتون رسمي اپ: خدمتونه، روغتیايي لارښود او خوراکي پرهېزونه", "Rahnaward International Hospital app: services, health guide and diet advice"),
     healthNote: S("این معلومات فقط برای آگاهی عمومی است و جای معاینه داکتر را نمی‌گیرد.", "دا معلومات یوازې د عمومي پوهاوي لپاره دي او د ډاکټر معاینه نه ځای نیسي.", "This information is for general awareness only and does not replace a doctor's examination."),
@@ -522,6 +542,51 @@ window.APP_DATA = {
         ]}
       ]
     }
+  ],
+
+  /* ---------- پروفایل شفاخانه: ۱۰ بخش (فقط معلومات موجود؛ جاهای ⚠️ را خودتان پر کنید) ----------
+     intro = متن بالا، auto = لیست خودکار، after = جای‌گذار (placeholder) */
+  profile: [
+    { id: "intro", icon: "🏥", title: S("معرفی شفاخانه", "د روغتون پېژندنه", "Hospital Introduction"), audio: AUD(1),
+      intro: { fa: ["شفاخانه بین المللی رهنورد", "تشخیص دقیق‌تر و تداوی بهتر.", "شفاخانه رهنورد با داشتن امکانات تشخیصی مدرن و حضور متخصصان افغانی، هندی و پاکستانی، به‌صورت ۲۴ ساعته آماده خدمت‌رسانی است."],
+               ps: ["د رهنورد نړیوال روغتون", "دقیق تشخیص او غوره درملنه.", "د رهنورد روغتون د مدرنو تشخیصي امکاناتو او د افغاني، هندي او پاکستاني متخصصینو په شتون سره، ۲۴ ساعته د خدمت لپاره چمتو دی."],
+               en: ["Rahnaward International Hospital", "Precise diagnosis, better treatment.", "With modern diagnostic facilities and Afghan, Indian and Pakistani specialists, Rahnaward Hospital is ready to serve 24 hours a day."] },
+      after: { fa: ["⚠️ [جای‌گذار: سال تأسیس، تاریخچه و مأموریت شفاخانه را اینجا بنویسید]"],
+               ps: ["⚠️ [ځای ناستی: د روغتون د تاسیس کال، تاریخچه او ماموریت دلته ولیکئ]"],
+               en: ["⚠️ [Placeholder: add the founding year, history and mission of the hospital here]"] } },
+    { id: "contact", icon: "📍", title: S("موقعیت و معلومات تماس", "موقعیت او د اړیکې معلومات", "Location and Contact Information"), audio: AUD(2), auto: "contact",
+      after: { fa: ["⚠️ [جای‌گذار: ایمیل، لینک نقشه و ساعات کاری دفتر را در صورت نیاز اینجا بنویسید]"],
+               ps: ["⚠️ [ځای ناستی: ایمیل، د نقشې لینک او د دفتر د کار ساعتونه په اړتیا دلته ولیکئ]"],
+               en: ["⚠️ [Placeholder: add email, map link and office hours here if needed]"] } },
+    { id: "departments", icon: "🩺", title: S("بخش‌های طبی", "طبي څانګې", "Medical Departments"), audio: AUD(3), auto: "departments",
+      intro: { fa: ["شفاخانه رهنورد این بخش‌ها را دارد:"], ps: ["د رهنورد روغتون دا څانګې لري:"], en: ["Rahnaward Hospital has these departments:"] },
+      after: { fa: ["⚠️ [جای‌گذار: در صورت نیاز، ساعات کاری هر بخش را اضافه کنید]"], ps: ["⚠️ [ځای ناستی: په اړتیا د هرې څانګې د کار ساعتونه دلته اضافه کړئ]"], en: ["⚠️ [Placeholder: add each department's working hours here if needed]"] } },
+    { id: "doctors", icon: "👨‍⚕️", title: S("داکتران و متخصصان", "ډاکټران او متخصصین", "Doctors and Specialists"), audio: AUD(4),
+      intro: { fa: ["شفاخانه با حضور متخصصان افغانی، هندی و پاکستانی خدمت می‌کند."], ps: ["روغتون د افغاني، هندي او پاکستاني متخصصینو په شتون سره خدمت کوي."], en: ["The hospital serves with Afghan, Indian and Pakistani specialists."] },
+      after: { fa: ["⚠️ [جای‌گذار: نام داکتران، تخصص و ساعات کاری هر داکتر را اینجا بنویسید]"], ps: ["⚠️ [ځای ناستی: د ډاکټرانو نومونه، تخصص او د هر ډاکټر د کار ساعتونه دلته ولیکئ]"], en: ["⚠️ [Placeholder: add the doctors' names, specialties and working hours here]"] } },
+    { id: "lab", icon: "🔬", title: S("خدمات لابراتوار", "د لابراتوار خدمتونه", "Laboratory Services"), audio: AUD(5), auto: "lab",
+      intro: { fa: ["لابراتوار شفاخانه کاملاً مجهز است و این گروه‌های معاینات را انجام می‌دهد:"], ps: ["د روغتون لابراتوار بشپړ سمبال دی او دا د معایناتو ډلې ترسره کوي:"], en: ["The hospital laboratory is fully equipped and performs these groups of tests:"] },
+      after: { fa: ["⚠️ [جای‌گذار: ساعات کاری لابراتوار و طرز نمونه‌گیری را اینجا بنویسید]"], ps: ["⚠️ [ځای ناستی: د لابراتوار د کار ساعتونه او د نمونې اخیستلو طریقه دلته ولیکئ]"], en: ["⚠️ [Placeholder: add laboratory hours and sample collection details here]"] } },
+    { id: "radiology", icon: "🩻", title: S("خدمات رادیولوژی و تصویربرداری", "د رادیولوژي او انځورګرۍ خدمتونه", "Radiology and Imaging Services"), audio: AUD(6), auto: "imaging",
+      intro: { fa: ["بخش رادیولوژی و تصویربرداری این خدمات را دارد:"], ps: ["د رادیولوژۍ او انځورګرۍ څانګه دا خدمتونه لري:"], en: ["The radiology and imaging department offers these services:"] },
+      after: { fa: ["⚠️ [جای‌گذار: ساعات کاری رادیولوژی را اینجا بنویسید]"], ps: ["⚠️ [ځای ناستی: د رادیولوژۍ د کار ساعتونه دلته ولیکئ]"], en: ["⚠️ [Placeholder: add radiology working hours here]"] } },
+    { id: "admission", icon: "📝", title: S("پذیرش و ثبت مریض", "د ناروغ منل او ثبتول", "Patient Admission and Registration"), audio: AUD(7),
+      intro: { fa: ["هر مریض با شماره ثبت مریض ثبت می‌شود. در فورم OPD نام مریض، نام پدر، سن و جنس، داکتر معرف، علایم حیاتی (حرارت بدن، نبض، تنفس و فشار خون) و شکایت اصلی مریض نوشته می‌شود."],
+               ps: ["هر ناروغ د ناروغ د ثبت شمېرې سره ثبتېږي. د OPD په فورم کې د ناروغ نوم، د پلار نوم، عمر او جنس، معرفي ډاکټر، حیاتي نښې (د بدن تودوخه، نبض، تنفس او د وینې فشار) او د ناروغ اصلي شکایت لیکل کېږي."],
+               en: ["Every patient is registered with a patient registration number. The OPD form records the patient's name, father's name, age and sex, referring doctor, vital signs (body temperature, pulse, respiration rate and blood pressure) and the main complaint."] },
+      after: { fa: ["⚠️ [جای‌گذار: مدارک لازم برای پذیرش]", "⚠️ [جای‌گذار: مراحل پذیرش و بستری شدن]", "⚠️ [جای‌گذار: طرز پرداخت و فیس‌ها]"],
+               ps: ["⚠️ [ځای ناستی: د منلو لپاره اړین اسناد]", "⚠️ [ځای ناستی: د منلو او بستر کېدو پړاوونه]", "⚠️ [ځای ناستی: د پیسو ورکولو طریقه او فیسونه]"],
+               en: ["⚠️ [Placeholder: documents required for admission]", "⚠️ [Placeholder: admission and hospitalization steps]", "⚠️ [Placeholder: payment method and fees]"] } },
+    { id: "emergency", icon: "🚑", title: S("خدمات عاجل", "بیړني خدمتونه", "Emergency Services"), audio: AUD(8), auto: "emergency",
+      intro: { fa: ["شفاخانه بخش عاجل دارد و به‌صورت ۲۴ ساعته خدمت می‌کند.", "آمبولانس شفاخانه رایگان است."], ps: ["روغتون بیړنۍ څانګه لري او ۲۴ ساعته خدمت کوي.", "د روغتون امبولانس وړیا دی."], en: ["The hospital has an emergency department and serves 24 hours a day.", "The hospital ambulance is free."] },
+      after: { fa: ["⚠️ [جای‌گذار: اگر شماره جداگانه برای عاجل دارید، اینجا بنویسید]"], ps: ["⚠️ [ځای ناستی: که د بیړنیو لپاره جلا شمېره لرئ، دلته ولیکئ]"], en: ["⚠️ [Placeholder: if you have a separate emergency number, add it here]"] } },
+    { id: "visiting", icon: "🕒", title: S("ساعات ملاقات و معلومات مریض", "د لیدنې ساعتونه او د ناروغ معلومات", "Visiting Hours and Patient Information"), audio: AUD(9),
+      after: { fa: ["⚠️ [جای‌گذار: ساعات ملاقات مریض‌ها]", "⚠️ [جای‌گذار: قوانین ملاقات و تعداد ملاقات‌کننده]", "⚠️ [جای‌گذار: معلومات و رهنمایی برای مریض‌ها و همراهان]"],
+               ps: ["⚠️ [ځای ناستی: د ناروغانو د لیدنې ساعتونه]", "⚠️ [ځای ناستی: د لیدنې قوانین او د لیدونکو شمېر]", "⚠️ [ځای ناستی: ناروغانو او همراهانو ته معلومات او لارښوونې]"],
+               en: ["⚠️ [Placeholder: patient visiting hours]", "⚠️ [Placeholder: visiting rules and number of visitors]", "⚠️ [Placeholder: information and guidance for patients and companions]"] } },
+    { id: "other", icon: "✨", title: S("سایر خدمات و امکانات", "نور خدمتونه او امکانات", "Other Services and Facilities"), audio: AUD(10),
+      intro: { fa: ["• خدمات ۲۴ ساعته", "• آمبولانس رایگان"], ps: ["• ۲۴ ساعته خدمتونه", "• وړیا امبولانس"], en: ["• 24-hour service", "• Free ambulance"] },
+      after: { fa: ["⚠️ [جای‌گذار: سایر خدمات و امکانات شفاخانه را اینجا بنویسید — فقط آنچه واقعاً موجود است]"], ps: ["⚠️ [ځای ناستی: د روغتون نور خدمتونه او امکانات دلته ولیکئ — یوازې هغه چې رښتیا شته]"], en: ["⚠️ [Placeholder: add other hospital services and facilities here — only what actually exists]"] } }
   ],
 
   /* ---------- علایم خطر ---------- */
